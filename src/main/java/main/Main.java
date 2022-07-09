@@ -9,9 +9,9 @@ import parser.AdventurerParser;
 import parser.MapParser;
 import services.ActionService;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -122,7 +122,11 @@ public class Main {
 
         final String adventurerToString = adventurers.stream().map(Adventurer::toString).collect(Collectors.joining("\n"));
 
-        Files.write(Paths.get("out.txt"), adventurerToString.getBytes());
+        final File out = new File("out.txt");
+
+        Files.write(out.toPath(), adventurerToString.getBytes());
+
+        System.out.println(String.format("Le résultat est disponible ici : %s", out.getAbsoluteFile()));
 
     }
 }
