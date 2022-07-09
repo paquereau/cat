@@ -82,9 +82,9 @@ public class Main {
 
         while (true) {
             System.out.println(
-                    String.format("Carte (ligne x colonne) : %sx%s Position aventurier (ligne - colonne - orientation) : %s - %s - %s Nombre de trésors : %s",
-                            map.getLineNumber(), map.getColumnNumber(),
-                            adventurer.getPosition().getLine(), adventurer.getPosition().getColumn(), adventurer.getOrientation(),
+                    String.format("Carte (colonne x ligne) : %sx%s Position aventurier (colonne - ligne - orientation) : %s - %s - %s Nombre de trésors : %s",
+                            map.getColumnNumber(), map.getLineNumber(),
+                            adventurer.getPosition().getColumn(), adventurer.getPosition().getLine(), adventurer.getOrientation(),
                             adventurer.getTreasureNumber()));
             System.out.println("Action possible : A - D - G - E (Exit)");
 
@@ -94,7 +94,7 @@ public class Main {
                 return;
             }
 
-            actionService.executeAction(action, adventurer, map);
+            actionService.executeAction(action, adventurer, map, true);
         }
     }
 
@@ -107,18 +107,17 @@ public class Main {
 
         final Scanner keyboard = new Scanner(System.in);
 
-        System.out.println("Chemin accès absolue au fichier de la carte");
+        System.out.println("Chemin accès absolu au fichier de la carte");
 
         final String mapPath = keyboard.nextLine();
         final Map map = mapParser.parseMapFile(mapPath);
 
-
-        System.out.println("Chemin accès absolue au fichier des aventuriers");
+        System.out.println("Chemin accès absolu au fichier des aventuriers");
 
         final String adventurerPath = keyboard.nextLine();
         final List<Adventurer> adventurers = adventurerParser.parseAdventurerFile(adventurerPath);
 
-        adventurers.forEach(adventurer -> adventurer.getActions().forEach(action -> actionService.executeAction(action, adventurer, map)));
+        adventurers.forEach(adventurer -> adventurer.getActions().forEach(action -> actionService.executeAction(action, adventurer, map, false)));
 
         final String adventurerToString = adventurers.stream().map(Adventurer::toString).collect(Collectors.joining("\n"));
 

@@ -19,12 +19,13 @@ public class ActionService {
      * @param action     the action
      * @param adventurer the adventurer
      * @param map        the map
+     * @param isDemo     the is demo
      */
-    public void executeAction(final String action, final Adventurer adventurer, final Map map) {
+    public void executeAction(final String action, final Adventurer adventurer, final Map map, final boolean isDemo) {
 
         switch (action) {
             case "A":
-                moveAdventurer(adventurer, map);
+                moveAdventurer(adventurer, map, isDemo);
                 break;
             case "D":
                 moveRight(adventurer);
@@ -42,8 +43,9 @@ public class ActionService {
      *
      * @param adventurer the adventurer
      * @param map        the map
+     * @param isDemo     the is demo
      */
-    private void moveAdventurer(final Adventurer adventurer, final Map map) {
+    private void moveAdventurer(final Adventurer adventurer, final Map map, final boolean isDemo) {
 
         final Position nextPosition = computeNextPosition(adventurer.getPosition(), adventurer.getOrientation());
         final List<Treasure> treasures = map.getTreasures();
@@ -51,7 +53,7 @@ public class ActionService {
         if (checkMove(nextPosition, map)) {
             adventurer.setPosition(nextPosition);
             adventurer.setTreasureNumber(computeTreasure(adventurer.getPosition(), adventurer.getTreasureNumber(), treasures));
-        } else {
+        } else if (isDemo) {
             System.out.println("\nAction ignoré\n");
         }
     }
