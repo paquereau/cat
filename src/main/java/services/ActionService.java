@@ -5,6 +5,7 @@ import entity.Map;
 import entity.Position;
 import entity.Treasure;
 import entity.enums.Orientation;
+import exception.TechnicalException;
 
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class ActionService {
         if (checkMove(nextPosition, map)) {
             map.getPositions().put(adventurer.getName(), nextPosition);
             adventurer.setPosition(nextPosition);
-            adventurer.setTreasureNumber(computeTreasure(adventurer, treasures, map));
+            adventurer.setTreasureNumber(computeTreasure(adventurer, treasures));
         } else if (isDemo) {
             System.out.println("\nAction ignoré\n");
         }
@@ -84,10 +85,9 @@ public class ActionService {
      *
      * @param adventurer the adventurer
      * @param treasures  the treasures
-     * @param map        the map
      * @return the int
      */
-    private int computeTreasure(final Adventurer adventurer, final List<Treasure> treasures, final Map map) {
+    private int computeTreasure(final Adventurer adventurer, final List<Treasure> treasures) {
 
         final int index = treasures.indexOf(adventurer.getPosition());
 
@@ -131,9 +131,8 @@ public class ActionService {
     private void waitSecond() {
         try {
             Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        } catch (final InterruptedException e) {
+            throw new TechnicalException("ERREUR_THREAD", "Erreur lors de la mise en pause du thread", e);
         }
-
     }
 }

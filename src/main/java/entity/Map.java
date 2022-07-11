@@ -147,6 +147,6 @@ public class Map {
      * @return the boolean
      */
     public boolean isValid() {
-        return lineNumber != null && columnNumber != null;
+        return lineNumber != null && lineNumber > 0 && columnNumber != null && columnNumber > 0;
     }
 }

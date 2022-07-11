@@ -5,6 +5,8 @@ import entity.Map;
 import entity.Mountain;
 import entity.Treasure;
 import entity.enums.Orientation;
+import exception.BusinessException;
+import exception.TechnicalException;
 import parser.AdventurerParser;
 import parser.MapParser;
 import services.ActionService;
@@ -44,26 +46,31 @@ public class Main {
      * Main.
      *
      * @param args the args
-     * @throws IOException the io exception
      */
-    public static void main(final String[] args) throws IOException, InterruptedException {
+    public static void main(final String[] args) {
 
-        System.out.println("Action possible :");
-        System.out.println("1 = Démo (Carte pré-défini du sprint 1)");
-        System.out.println("2 = chargé carte et aventurier");
-        System.out.println("E (Exit)");
+        try {
 
-        final Scanner keyboard = new Scanner(System.in);
-        final String choice = keyboard.nextLine();
+            System.out.println("Action possible :");
+            System.out.println("1 = Démo (Carte pré-défini du sprint 1)");
+            System.out.println("2 = chargé carte et aventurier");
+            System.out.println("E (Exit)");
 
-        if ("1".equals(choice)) {
-            demo();
-        } else if ("2".equals(choice)) {
-            playWithFile();
-        } else if ("E".equals(choice)) {
-            return;
-        } else {
-            System.out.println("\nSaisie incorrect\n");
+            final Scanner keyboard = new Scanner(System.in);
+            final String choice = keyboard.nextLine();
+
+            if ("1".equals(choice)) {
+                demo();
+            } else if ("2".equals(choice)) {
+                playWithFile();
+            } else if ("E".equals(choice)) {
+                return;
+            } else {
+                System.out.println("\nSaisie incorrect\n");
+            }
+        } catch (final TechnicalException e) {
+            System.out.printf("%n%s : %s%n", e.getCodeError(), e.getMessageError());
+            throw e;
         }
     }
 
@@ -84,11 +91,10 @@ public class Main {
         final Adventurer adventurer = new Adventurer("Toto", 1, 1, Orientation.E, null);
 
         while (true) {
-            System.out.println(
-                    String.format("Carte (colonne x ligne) : %sx%s Position aventurier (colonne - ligne - orientation) : %s - %s - %s Nombre de trésors : %s",
-                            map.getColumnNumber(), map.getLineNumber(),
-                            adventurer.getPosition().getColumn(), adventurer.getPosition().getLine(), adventurer.getOrientation(),
-                            adventurer.getTreasureNumber()));
+            System.out.printf("Carte (colonne x ligne) : %sx%s Position aventurier (colonne - ligne - orientation) : %s - %s - %s Nombre de trésors : %s%n",
+                    map.getColumnNumber(), map.getLineNumber(),
+                    adventurer.getPosition().getColumn(), adventurer.getPosition().getLine(), adventurer.getOrientation(),
+                    adventurer.getTreasureNumber());
             System.out.println("Action possible : A - D - G - E (Exit)");
 
             final String action = keyboard.nextLine();
@@ -103,42 +109,74 @@ public class Main {
 
     /**
      * Play with file.
-     *
-     * @throws IOException the io exception
      */
-    private static void playWithFile() throws IOException, InterruptedException {
+    private static void playWithFile() {
 
-        final Scanner keyboard = new Scanner(System.in);
+        try {
+            final Scanner keyboard = new Scanner(System.in);
 
-        System.out.println("Chemin accès absolu au fichier de la carte");
+            System.out.println("Chemin accès absolu au fichier de la carte");
 
-        final String mapPath = keyboard.nextLine();
-        final Map map = mapParser.parseMapFile(mapPath);
+            final String mapPath = keyboard.nextLine();
+            final Map map = mapParser.parseMapFile(mapPath);
 
-        System.out.println("Chemin accès absolu au fichier des aventuriers");
+            System.out.println("Chemin accès absolu au fichier des aventuriers");
 
-        final String adventurerPath = keyboard.nextLine();
-        final List<Adventurer> adventurers = adventurerParser.parseAdventurerFile(adventurerPath);
+            final String adventurerPath = keyboard.nextLine();
+            final List<Adventurer> adventurers = adventurerParser.parseAdventurerFile(adventurerPath);
 
-        final ExecutorService executorService = Executors.newCachedThreadPool();
+            final ExecutorService executorService = Executors.newCachedThreadPool();
 
-        adventurers.forEach(adventurer -> map.getPositions().put(adventurer.getName(), adventurer.getPosition()));
+            adventurers.forEach(adventurer -> map.getPositions().put(adventurer.getName(), adventurer.getPosition()));
 
-        adventurers.forEach(adventurer -> executorService.execute(() -> {
-            System.out.println(String.format("Début %s", adventurer.getName()));
-            adventurer.getActions().forEach(action -> actionService.executeAction(action, adventurer, map, false));
-            System.out.println(String.format("Fin %s", adventurer.getName()));
-        }));
+            adventurers.forEach(adventurer -> executorService.execute(() -> {
+                System.out.printf("Début %s%n", adventurer.getName());
+                adventurer.getActions().forEach(action -> actionService.executeAction(action, adventurer, map, false));
+                System.out.printf("Fin %s%n", adventurer.getName());
+            }));
 
-        executorService.shutdown();
-        executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            executorService.shutdown();
+
+            waitThreadToFinish(executorService);
+
+            writeResultToFile(adventurers);
+
+        } catch (final BusinessException e) {
+            System.out.printf("%n%s : %s%n", e.getCodeError(), e.getMessageError());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Write result to file
+     *
+     * @param adventurers the adventurers list
+     */
+    private static void writeResultToFile(final List<Adventurer> adventurers) {
 
         final String adventurerToString = adventurers.stream().map(Adventurer::toString).collect(Collectors.joining("\n"));
 
         final File out = new File("out.txt");
 
-        Files.write(out.toPath(), adventurerToString.getBytes());
+        try {
+            Files.write(out.toPath(), adventurerToString.getBytes());
+        } catch (final IOException e) {
+            throw new TechnicalException("", String.format("Impossible d'écrire dans le fichier %s", out.getAbsoluteFile()), e);
+        }
 
-        System.out.println(String.format("Le résultat est disponible ici : %s", out.getAbsoluteFile()));
+        System.out.printf("Le résultat est disponible ici : %s%n", out.getAbsoluteFile());
+    }
+
+    /**
+     * Wait thread to finish.
+     *
+     * @param executorService the executor service
+     */
+    private static void waitThreadToFinish(final ExecutorService executorService) {
+        try {
+            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (final InterruptedException e) {
+            throw new TechnicalException("ERREUR_THREAD", "Erreur lors de l'attente de la fin des threads");
+        }
     }
 }
