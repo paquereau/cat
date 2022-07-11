@@ -24,17 +24,10 @@ public class ActionService {
     public void executeAction(final String action, final Adventurer adventurer, final Map map, final boolean isDemo) {
 
         switch (action) {
-            case "A":
-                moveAdventurer(adventurer, map, isDemo);
-                break;
-            case "D":
-                moveRight(adventurer);
-                break;
-            case "G":
-                moveLeft(adventurer);
-                break;
-            default:
-                System.out.println("\nSaisie incorrect\n");
+            case "A" -> moveAdventurer(adventurer, map, isDemo);
+            case "D" -> moveRight(adventurer);
+            case "G" -> moveLeft(adventurer);
+            default -> System.out.println("\nSaisie incorrect\n");
         }
 
         waitSecond();

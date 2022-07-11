@@ -1,1 +1,2 @@
-toto 1-1 S AAGAAAAAAADA
+toto 1-1 S A
+tata 1-2 S GGGGGG

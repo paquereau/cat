@@ -79,12 +79,10 @@ public class Position {
             return true;
         }
 
-        if (!(object instanceof Position)) {
-            return false;
+        if (object instanceof Position position) {
+            return line == position.line && column == position.column;
         }
 
-        final Position position = (Position) object;
-
-        return line == position.line && column == position.column;
+        return false;
     }
 }

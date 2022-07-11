@@ -112,16 +112,13 @@ public class Main {
 
         System.out.println("Chemin accès absolu au fichier de la carte");
 
-//        final String mapPath = keyboard.nextLine();
-//        final Map map = mapParser.parseMapFile(mapPath);
+        final String mapPath = keyboard.nextLine();
+        final Map map = mapParser.parseMapFile(mapPath);
 
         System.out.println("Chemin accès absolu au fichier des aventuriers");
-//
-//        final String adventurerPath = keyboard.nextLine();
-//        final List<Adventurer> adventurers = adventurerParser.parseAdventurerFile(adventurerPath);
 
-        final Map map = mapParser.parseMapFile("C:\\Users\\fpaquereau\\Documents\\Perso\\Projet\\cat\\src\\main\\resources\\carte.txt");
-        final List<Adventurer> adventurers = adventurerParser.parseAdventurerFile("C:\\Users\\fpaquereau\\Documents\\Perso\\Projet\\cat\\src\\main\\resources\\aventurier.txt");
+        final String adventurerPath = keyboard.nextLine();
+        final List<Adventurer> adventurers = adventurerParser.parseAdventurerFile(adventurerPath);
 
         final ExecutorService executorService = Executors.newCachedThreadPool();
 
