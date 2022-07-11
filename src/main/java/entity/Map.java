@@ -2,6 +2,8 @@ package entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * The type Map.
@@ -29,11 +31,17 @@ public class Map {
     private List<Treasure> treasures;
 
     /**
+     * The Positions.
+     */
+    private ConcurrentMap<String, Position> positions;
+
+    /**
      * Instantiates a new Map.
      */
     public Map() {
         mountains = new ArrayList<>();
         treasures = new ArrayList<>();
+        positions = new ConcurrentHashMap<>();
     }
 
     /**
@@ -49,6 +57,7 @@ public class Map {
         this.lineNumber = lineNumber;
         this.mountains = mountains;
         this.treasures = treasures;
+        positions = new ConcurrentHashMap<>();
     }
 
     /**
@@ -56,7 +65,7 @@ public class Map {
      *
      * @return the column number
      */
-    public int getColumnNumber() {
+    public Integer getColumnNumber() {
         return columnNumber;
     }
 
@@ -65,7 +74,7 @@ public class Map {
      *
      * @param columnNumber the column number
      */
-    public void setColumnNumber(int columnNumber) {
+    public void setColumnNumber(Integer columnNumber) {
         this.columnNumber = columnNumber;
     }
 
@@ -74,7 +83,7 @@ public class Map {
      *
      * @return the line number
      */
-    public int getLineNumber() {
+    public Integer getLineNumber() {
         return lineNumber;
     }
 
@@ -83,7 +92,7 @@ public class Map {
      *
      * @param lineNumber the line number
      */
-    public void setLineNumber(int lineNumber) {
+    public void setLineNumber(Integer lineNumber) {
         this.lineNumber = lineNumber;
     }
 
@@ -121,6 +130,15 @@ public class Map {
      */
     public void setTreasures(List<Treasure> treasures) {
         this.treasures = treasures;
+    }
+
+    /**
+     * Gets positions.
+     *
+     * @return the positions
+     */
+    public ConcurrentMap<String, Position> getPositions() {
+        return positions;
     }
 
     /**

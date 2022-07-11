@@ -15,6 +15,9 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -43,7 +46,7 @@ public class Main {
      * @param args the args
      * @throws IOException the io exception
      */
-    public static void main(final String[] args) throws IOException {
+    public static void main(final String[] args) throws IOException, InterruptedException {
 
         System.out.println("Action possible :");
         System.out.println("1 = Démo (Carte pré-défini du sprint 1)");
@@ -103,21 +106,35 @@ public class Main {
      *
      * @throws IOException the io exception
      */
-    private static void playWithFile() throws IOException {
+    private static void playWithFile() throws IOException, InterruptedException {
 
         final Scanner keyboard = new Scanner(System.in);
 
         System.out.println("Chemin accès absolu au fichier de la carte");
 
-        final String mapPath = keyboard.nextLine();
-        final Map map = mapParser.parseMapFile(mapPath);
+//        final String mapPath = keyboard.nextLine();
+//        final Map map = mapParser.parseMapFile(mapPath);
 
         System.out.println("Chemin accès absolu au fichier des aventuriers");
+//
+//        final String adventurerPath = keyboard.nextLine();
+//        final List<Adventurer> adventurers = adventurerParser.parseAdventurerFile(adventurerPath);
 
-        final String adventurerPath = keyboard.nextLine();
-        final List<Adventurer> adventurers = adventurerParser.parseAdventurerFile(adventurerPath);
+        final Map map = mapParser.parseMapFile("C:\\Users\\fpaquereau\\Documents\\Perso\\Projet\\cat\\src\\main\\resources\\carte.txt");
+        final List<Adventurer> adventurers = adventurerParser.parseAdventurerFile("C:\\Users\\fpaquereau\\Documents\\Perso\\Projet\\cat\\src\\main\\resources\\aventurier.txt");
 
-        adventurers.forEach(adventurer -> adventurer.getActions().forEach(action -> actionService.executeAction(action, adventurer, map, false)));
+        final ExecutorService executorService = Executors.newCachedThreadPool();
+
+        adventurers.forEach(adventurer -> map.getPositions().put(adventurer.getName(), adventurer.getPosition()));
+
+        adventurers.forEach(adventurer -> executorService.execute(() -> {
+            System.out.println(String.format("Début %s", adventurer.getName()));
+            adventurer.getActions().forEach(action -> actionService.executeAction(action, adventurer, map, false));
+            System.out.println(String.format("Fin %s", adventurer.getName()));
+        }));
+
+        executorService.shutdown();
+        executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 
         final String adventurerToString = adventurers.stream().map(Adventurer::toString).collect(Collectors.joining("\n"));
 
@@ -126,6 +143,5 @@ public class Main {
         Files.write(out.toPath(), adventurerToString.getBytes());
 
         System.out.println(String.format("Le résultat est disponible ici : %s", out.getAbsoluteFile()));
-
     }
 }

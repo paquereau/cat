@@ -41,6 +41,7 @@ public class Adventurer {
      * @param column      the column
      * @param line        the line
      * @param orientation the orientation
+     * @param actions     the actions
      */
     public Adventurer(String name, int column, int line, Orientation orientation, List<String> actions) {
         this.name = name;

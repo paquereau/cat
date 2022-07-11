@@ -36,6 +36,8 @@ public class ActionService {
             default:
                 System.out.println("\nSaisie incorrect\n");
         }
+
+        waitSecond();
     }
 
     /**
@@ -45,14 +47,15 @@ public class ActionService {
      * @param map        the map
      * @param isDemo     the is demo
      */
-    private void moveAdventurer(final Adventurer adventurer, final Map map, final boolean isDemo) {
+    private synchronized void moveAdventurer(final Adventurer adventurer, final Map map, final boolean isDemo) {
 
         final Position nextPosition = computeNextPosition(adventurer.getPosition(), adventurer.getOrientation());
         final List<Treasure> treasures = map.getTreasures();
 
         if (checkMove(nextPosition, map)) {
+            map.getPositions().put(adventurer.getName(), nextPosition);
             adventurer.setPosition(nextPosition);
-            adventurer.setTreasureNumber(computeTreasure(adventurer.getPosition(), adventurer.getTreasureNumber(), treasures));
+            adventurer.setTreasureNumber(computeTreasure(adventurer, treasures, map));
         } else if (isDemo) {
             System.out.println("\nAction ignoré\n");
         }
@@ -77,7 +80,8 @@ public class ActionService {
      * @return the boolean
      */
     private boolean checkMove(final Position nextPosition, final Map map) {
-        return nextPosition.getLine() > 0 && nextPosition.getLine() <= map.getLineNumber()
+        return !map.getPositions().containsValue(nextPosition)
+                && nextPosition.getLine() > 0 && nextPosition.getLine() <= map.getLineNumber()
                 && nextPosition.getColumn() > 0 && nextPosition.getColumn() <= map.getColumnNumber()
                 && !map.getMountains().contains(nextPosition);
     }
@@ -85,14 +89,16 @@ public class ActionService {
     /**
      * Compute treasure int.
      *
-     * @param position              the position
-     * @param currentTreasureNumber the current treasure number
-     * @param treasures             the treasures
+     * @param adventurer the adventurer
+     * @param treasures  the treasures
+     * @param map        the map
      * @return the int
      */
-    private int computeTreasure(final Position position, final int currentTreasureNumber, final List<Treasure> treasures) {
+    private int computeTreasure(final Adventurer adventurer, final List<Treasure> treasures, final Map map) {
 
-        final int index = treasures.indexOf(position);
+        final int index = treasures.indexOf(adventurer.getPosition());
+
+        final int currentTreasureNumber = adventurer.getTreasureNumber();
 
         if (index == -1) {
             return currentTreasureNumber;
@@ -100,6 +106,8 @@ public class ActionService {
 
         final Treasure treasure = treasures.get(index);
         treasures.remove(treasure);
+
+        waitSecond();
 
         return currentTreasureNumber + treasure.getTreasureNumber();
     }
@@ -122,5 +130,17 @@ public class ActionService {
     private void moveRight(final Adventurer adventurer) {
         final int nextOrder = (adventurer.getOrientation().getOrder() + 1) % 4;
         adventurer.setOrientation(Orientation.getOrientationByOrder(nextOrder));
+    }
+
+    /**
+     * Wait second.
+     */
+    private void waitSecond() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }
