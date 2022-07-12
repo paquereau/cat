@@ -1,5 +1,7 @@
 package entity;
 
+import java.util.Objects;
+
 /**
  * The type Position.
  */
@@ -84,5 +86,10 @@ public class Position {
         }
 
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(column, line);
     }
 }
