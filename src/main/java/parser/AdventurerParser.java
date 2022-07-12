@@ -1,6 +1,7 @@
 package parser;
 
 import entity.Adventurer;
+import entity.Position;
 import entity.enums.Orientation;
 import exception.BusinessException;
 import exception.TechnicalException;
@@ -10,7 +11,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -31,9 +34,11 @@ public class AdventurerParser {
     public List<Adventurer> parseAdventurerFile(final String adventurerFilePath) throws BusinessException {
 
         final List<String> adventurerLines;
+        final Set<Position> positions = new HashSet<>();
+
         try {
             adventurerLines = Files.readAllLines(Paths.get(adventurerFilePath));
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new TechnicalException("FICHIER_ILLISIBLE", String.format("Impossible de lire le fichier des aventuriers : %s", adventurerFilePath), e);
         }
         final List<Adventurer> adventurers = new ArrayList<>();
@@ -43,21 +48,29 @@ public class AdventurerParser {
         for (final String line : adventurerLines) {
             index++;
 
+            // Check the line format
             if (!adventurerLinePattern.matcher(line).matches()) {
                 throw new BusinessException(INCORRECT_FILE, String.format("La ligne du fichier aventurier n°%s est incorrecte, ligne = %s", index, line));
             }
 
+            // Create adventurer
             final String[] columns = line.split(" ");
 
             final String[] position = columns[1].split("-");
 
             final String name = columns[0];
-            final int initialColumn = Integer.parseInt(position[0]);
-            final int initialLine = Integer.parseInt(position[1]);
+            final Position positionInitial = new Position(Integer.parseInt(position[0]), Integer.parseInt(position[1]));
             final Orientation initialOrientation = Orientation.valueOf(columns[2]);
             final List<String> actions = Arrays.asList(columns[3].split(""));
 
-            adventurers.add(new Adventurer(name, initialColumn, initialLine, initialOrientation, actions));
+            adventurers.add(new Adventurer(name, positionInitial, initialOrientation, actions));
+            positions.add(positionInitial);
+        }
+
+        // If there is not the same number of positions than adventurers
+        if (positions.size() != adventurers.size()) {
+            // Then error
+            throw new BusinessException("INVALIDE", "Plusieurs aventurier sur la même case initial");
         }
 
         return adventurers;

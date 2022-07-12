@@ -33,6 +33,7 @@ public class MapParser {
     public Map parseMapFile(final String mapFilePath) throws BusinessException {
 
         final List<String> lines;
+
         try {
             lines = Files.readAllLines(Paths.get(mapFilePath));
         } catch (final IOException e) {
@@ -49,6 +50,7 @@ public class MapParser {
 
             index++;
 
+            // Check possible format of line
             if (!(mapLinePattern.matcher(line).matches()
                     || mountainLinePattern.matcher(line).matches()
                     || treasureLinePattern.matcher(line).matches())) {
@@ -59,8 +61,10 @@ public class MapParser {
 
             final String lineType = lineElements[0];
 
+            // Choose the type of the line (map, treasure or mountain)
             switch (lineType) {
                 case "C" -> {
+                    // Check if the map isn't already define
                     if (map.isValid()) {
                         throw new BusinessException(INCORRECT_FILE, String.format("La carte a été définie plusieurs fois, fichier : %s", mapFilePath));
                     }
@@ -74,6 +78,7 @@ public class MapParser {
             }
         }
 
+        // Check if the map has been define
         if (!map.isValid()) {
             throw new BusinessException(INCORRECT_FILE, String.format("La carte n'a pas été défini ou mal défini (ex : C 0 0), fichier : %s", mapFilePath));
         }
@@ -91,7 +96,6 @@ public class MapParser {
      * @param map     the map
      */
     private void fillMap(final String[] columns, final Map map) {
-
         map.setColumnNumber(Integer.parseInt(columns[1]));
         map.setLineNumber(Integer.parseInt(columns[2]));
     }

@@ -24,6 +24,7 @@ public class ActionService {
      */
     public void executeAction(final String action, final Adventurer adventurer, final Map map, final boolean isDemo) {
 
+        // Choose type of action (forward, right, left)
         switch (action) {
             case "A" -> moveAdventurer(adventurer, map, isDemo);
             case "D" -> moveRight(adventurer);
@@ -46,6 +47,7 @@ public class ActionService {
         final Position nextPosition = computeNextPosition(adventurer.getPosition(), adventurer.getOrientation());
         final List<Treasure> treasures = map.getTreasures();
 
+        // Check if the move is authorized
         if (checkMove(nextPosition, map)) {
             map.getPositions().put(adventurer.getName(), nextPosition);
             adventurer.setPosition(nextPosition);

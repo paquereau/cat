@@ -43,9 +43,9 @@ public class Adventurer {
      * @param orientation the orientation
      * @param actions     the actions
      */
-    public Adventurer(String name, int column, int line, Orientation orientation, List<String> actions) {
+    public Adventurer(String name, Position position, Orientation orientation, List<String> actions) {
         this.name = name;
-        this.position = new Position(column, line);
+        this.position = position;
         this.treasureNumber = 0;
         this.orientation = orientation;
         this.actions = actions;
