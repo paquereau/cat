@@ -73,16 +73,16 @@ public class GameService {
             final Position position = adventurer.getPosition();
             if (position.getColumn() <= 0 || position.getColumn() > map.getColumnNumber()
                     || position.getLine() <= 0 || position.getLine() > map.getLineNumber()) {
-                throw new BusinessException("INITIAL_POSTION_INVALIDE", String.format("La position initial de l'aventurier %s est invalide", adventurer.getName()));
+                throw new BusinessException("INVALID_INITIAL_POSITION", String.format("The initial position of adventurer %s is invalid", adventurer.getName()));
             }
             map.getPositions().put(adventurer.getName(), adventurer.getPosition());
         }
 
         // Launch thread
         adventurers.forEach(adventurer -> executorService.execute(() -> {
-            System.out.printf("Début %s%n", adventurer.getName());
+            System.out.printf("Begin %s%n", adventurer.getName());
             adventurer.getActions().forEach(action -> actionService.executeAction(action, adventurer, map, false));
-            System.out.printf("Fin %s%n", adventurer.getName());
+            System.out.printf("End %s%n", adventurer.getName());
         }));
 
         executorService.shutdown();
@@ -101,7 +101,7 @@ public class GameService {
     private Map createMap() throws BusinessException {
 
         // Read map file
-        System.out.println("Chemin accès absolu au fichier de la carte");
+        System.out.println("Absolute path for the map file :");
 
         final String mapPath = keyboard.nextLine();
 
@@ -117,7 +117,7 @@ public class GameService {
     private List<Adventurer> createAdventurer() throws BusinessException {
 
         // Read adventurer file
-        System.out.println("Chemin accès absolu au fichier des aventuriers");
+        System.out.println("Absolute path for the adventurer path :");
 
         final String adventurerPath = keyboard.nextLine();
 
@@ -139,7 +139,7 @@ public class GameService {
         try {
             Files.write(out.toPath(), adventurerToString.getBytes());
         } catch (final IOException e) {
-            throw new TechnicalException("", String.format("Impossible d'écrire dans le fichier %s", out.getAbsoluteFile()), e);
+            throw new TechnicalException("CANNOT_WRITE_FILE", String.format("Cannot write into file : %s", out.getAbsoluteFile()), e);
         }
 
         return out.getAbsolutePath();
@@ -154,7 +154,7 @@ public class GameService {
         try {
             executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         } catch (final InterruptedException e) {
-            throw new TechnicalException("ERREUR_THREAD", "Erreur lors de l'attente de la fin des threads");
+            throw new TechnicalException("THREAD_ERROR", "Error during paused thread");
         }
     }
 }

@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class ActionServiceTest {
 
-    private ActionService actionService = new ActionService();
+    private final ActionService actionService = ActionService.getInstance();
 
     /**
      * Execute action test move adventurer.

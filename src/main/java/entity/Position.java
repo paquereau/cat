@@ -23,7 +23,7 @@ public class Position {
      * @param column the column
      * @param line   the line
      */
-    public Position(final int column, final int line) {
+    public Position(int column, int line) {
         this.column = column;
         this.line = line;
     }

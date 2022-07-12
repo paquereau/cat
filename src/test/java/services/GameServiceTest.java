@@ -91,8 +91,8 @@ public class GameServiceTest {
         } catch (final BusinessException e) {
             // Then
             hasError = true;
-            Assert.assertEquals("INITIAL_POSTION_INVALIDE", e.getCodeError());
-            Assert.assertEquals("La position initial de l'aventurier Toto est invalide", e.getMessageError());
+            Assert.assertEquals("INVALID_INITIAL_POSITION", e.getCodeError());
+            Assert.assertEquals("The initial position of adventurer Toto is invalid", e.getMessageError());
         }
 
         Assert.assertTrue(hasError);

@@ -34,7 +34,7 @@ public class Main {
     /**
      * The Action service.
      */
-    private static final ActionService actionService = new ActionService();
+    private static final ActionService actionService = ActionService.getInstance();
 
     /**
      * The Keyboard.
