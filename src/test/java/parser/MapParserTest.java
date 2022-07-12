@@ -13,7 +13,7 @@ import org.junit.Test;
  */
 public class MapParserTest {
 
-    private static final String INCORRECT_FILE = "FICHIER_INCORRECT";
+    private static final String INCORRECT_FILE = "INCORRECT_FILE";
 
     private MapParser mapParser = new MapParser();
 
@@ -62,8 +62,8 @@ public class MapParserTest {
         } catch (final TechnicalException e) {
             // Then
             hasError = true;
-            Assert.assertEquals("FICHIER_ILLISIBLE", e.getCodeError());
-            Assert.assertEquals(String.format("Impossible de lire le fichier de la carte : %s", in), e.getMessageError());
+            Assert.assertEquals("CANNOT_READ_FILE", e.getCodeError());
+            Assert.assertEquals(String.format("Cannot read the map file : %s", in), e.getMessageError());
         }
 
         Assert.assertTrue(hasError);
@@ -84,7 +84,7 @@ public class MapParserTest {
             // Then
             hasError = true;
             Assert.assertEquals(INCORRECT_FILE, e.getCodeError());
-            Assert.assertEquals(String.format("La ligne du fichier carte n°2 est incorrecte, ligne = T 4-2, fichier : %s", in), e.getMessageError());
+            Assert.assertEquals(String.format("The line of map file n°2 is incorrect, line = T 4-2, file : %s", in), e.getMessageError());
         }
 
         Assert.assertTrue(hasError);
@@ -105,7 +105,7 @@ public class MapParserTest {
             // Then
             hasError = true;
             Assert.assertEquals(INCORRECT_FILE, e.getCodeError());
-            Assert.assertEquals(String.format("La carte a été définie plusieurs fois, fichier : %s", in), e.getMessageError());
+            Assert.assertEquals(String.format("The map has been defined multiple times, file : %s", in), e.getMessageError());
         }
 
         Assert.assertTrue(hasError);
@@ -125,7 +125,7 @@ public class MapParserTest {
             // Then
             hasError = true;
             Assert.assertEquals(INCORRECT_FILE, e.getCodeError());
-            Assert.assertEquals(String.format("La carte n'a pas été défini ou mal défini (ex : C 0 0), fichier : %s", in), e.getMessageError());
+            Assert.assertEquals(String.format("The map is not defined or poorly defined (ex : C 0 0), file : %s", in), e.getMessageError());
         }
 
         Assert.assertTrue(hasError);

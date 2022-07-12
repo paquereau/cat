@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class AdventurerParserTest {
 
-    private static final String INCORRECT_FILE = "FICHIER_INCORRECT";
+    private static final String INCORRECT_FILE = "INCORRECT_FILE";
 
     private AdventurerParser adventurerParser = new AdventurerParser();
 
@@ -54,8 +54,8 @@ public class AdventurerParserTest {
         } catch (final TechnicalException e) {
             // Then
             hasError = true;
-            Assert.assertEquals("FICHIER_ILLISIBLE", e.getCodeError());
-            Assert.assertEquals(String.format("Impossible de lire le fichier des aventuriers : %s", in), e.getMessageError());
+            Assert.assertEquals("CANNOT_READ_FILE", e.getCodeError());
+            Assert.assertEquals(String.format("Cannot read the adventurer file : %s", in), e.getMessageError());
         }
 
         Assert.assertTrue(hasError);
@@ -79,7 +79,7 @@ public class AdventurerParserTest {
             // Then
             hasError = true;
             Assert.assertEquals(INCORRECT_FILE, e.getCodeError());
-            Assert.assertEquals(String.format("La ligne du fichier aventurier n°1 est incorrecte, ligne = toto 1-1 S T, fichier : %s", in), e.getMessageError());
+            Assert.assertEquals(String.format("The line of adventurer file n°1 is incorrect, line = toto 1-1 S T, file : %s", in), e.getMessageError());
         }
 
         Assert.assertTrue(hasError);
@@ -103,7 +103,7 @@ public class AdventurerParserTest {
             // Then
             hasError = true;
             Assert.assertEquals(INCORRECT_FILE, e.getCodeError());
-            Assert.assertEquals(String.format("Plusieurs aventuriers avec le même nom, fichier : %s", in), e.getMessageError());
+            Assert.assertEquals(String.format("Multiple adventurer with the same name, file : %s", in), e.getMessageError());
         }
 
         Assert.assertTrue(hasError);
@@ -126,7 +126,7 @@ public class AdventurerParserTest {
             // Then
             hasError = true;
             Assert.assertEquals(INCORRECT_FILE, e.getCodeError());
-            Assert.assertEquals(String.format("Plusieurs aventuriers sur la même case initial, fichier : %s", in), e.getMessageError());
+            Assert.assertEquals(String.format("Multiple adventurer with the same initial position, file : %s", in), e.getMessageError());
         }
 
         Assert.assertTrue(hasError);

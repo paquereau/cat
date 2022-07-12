@@ -12,17 +12,16 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * The type File service.
  */
 public class MapParser {
 
-    private static final String INCORRECT_FILE = "FICHIER_INCORRECT";
-    private final Pattern MAP_LINE_PATTERN = Pattern.compile("^C \\d+ \\d+$");
-    private final Pattern MOUNTAINS_LINE_PATTERN = Pattern.compile("^M \\d+-\\d+$");
-    private final Pattern TREASURE_LINE_PATTERN = Pattern.compile("^T \\d+-\\d+ \\d+$");
+    private static final String INCORRECT_FILE = "INCORRECT_FILE";
+    private static final Pattern MAP_LINE_PATTERN = Pattern.compile("^C \\d+ \\d+$");
+    private static final Pattern MOUNTAINS_LINE_PATTERN = Pattern.compile("^M \\d+-\\d+$");
+    private static final Pattern TREASURE_LINE_PATTERN = Pattern.compile("^T \\d+-\\d+ \\d+$");
 
     /**
      * Parse map file map.
@@ -36,9 +35,9 @@ public class MapParser {
         final List<String> lines;
 
         try {
-            lines = Files.lines(Paths.get(mapFilePath)).collect(Collectors.toList());
+            lines = Files.lines(Paths.get(mapFilePath)).toList();
         } catch (final IOException e) {
-            throw new TechnicalException("FICHIER_ILLISIBLE", String.format("Impossible de lire le fichier de la carte : %s", mapFilePath), e);
+            throw new TechnicalException("CANNOT_READ_FILE", String.format("Cannot read the map file : %s", mapFilePath), e);
         }
 
         final Map map = new Map();
@@ -55,7 +54,7 @@ public class MapParser {
             if (!(MAP_LINE_PATTERN.matcher(line).matches()
                     || MOUNTAINS_LINE_PATTERN.matcher(line).matches()
                     || TREASURE_LINE_PATTERN.matcher(line).matches())) {
-                throw new BusinessException(INCORRECT_FILE, String.format("La ligne du fichier carte n°%s est incorrecte, ligne = %s, fichier : %s", index, line, mapFilePath));
+                throw new BusinessException(INCORRECT_FILE, String.format("The line of map file n°%s is incorrect, line = %s, file : %s", index, line, mapFilePath));
             }
 
             final String[] lineElements = line.split(" ");
@@ -67,21 +66,21 @@ public class MapParser {
                 case "C" -> {
                     // Check if the map isn't already define
                     if (map.isValid()) {
-                        throw new BusinessException(INCORRECT_FILE, String.format("La carte a été définie plusieurs fois, fichier : %s", mapFilePath));
+                        throw new BusinessException(INCORRECT_FILE, String.format("The map has been defined multiple times, file : %s", mapFilePath));
                     }
                     fillMap(lineElements, map);
                 }
                 case "T" -> treasures.add(createTreasure(lineElements));
                 case "M" -> mountains.add(createMountain(lineElements));
                 default -> throw new BusinessException(INCORRECT_FILE,
-                        String.format("La ligne du fichier carte n°%s est incorrecte, ligne = %s, l'instruction '%s' est inconnu, fichier : %s",
+                        String.format("The line of map file n°%s is incorrect, line = %s, instruction '%s' is unknown, file : %s",
                                 index, line, lineType, mapFilePath));
             }
         }
 
         // Check if the map has been define
         if (!map.isValid()) {
-            throw new BusinessException(INCORRECT_FILE, String.format("La carte n'a pas été définie ou mal définie (ex : C 0 0), fichier : %s", mapFilePath));
+            throw new BusinessException(INCORRECT_FILE, String.format("The map is not defined or poorly defined (ex : C 0 0), file : %s", mapFilePath));
         }
 
         map.setMountains(mountains);
