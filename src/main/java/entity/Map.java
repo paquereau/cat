@@ -1,9 +1,9 @@
 package entity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * The type Map.
@@ -33,7 +33,7 @@ public class Map {
     /**
      * The Positions.
      */
-    private ConcurrentMap<String, Position> positions;
+    private java.util.Map<String, Position> positions;
 
     /**
      * Instantiates a new Map.
@@ -41,7 +41,7 @@ public class Map {
     public Map() {
         mountains = new ArrayList<>();
         treasures = new ArrayList<>();
-        positions = new ConcurrentHashMap<>();
+        positions = new HashMap<>();
     }
 
     /**
@@ -137,7 +137,7 @@ public class Map {
      *
      * @return the positions
      */
-    public ConcurrentMap<String, Position> getPositions() {
+    public java.util.Map<String, Position> getPositions() {
         return positions;
     }
 
