@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  */
 public class AdventurerParser {
 
-    private static final String INCORRECT_FILE = "Fichier incorrect";
+    private static final String INCORRECT_FILE = "FICHIER_INCORRECT";
 
     private Pattern adventurerLinePattern = Pattern.compile("^\\S+ \\d+-\\d+ [NSEO] [ADG]+$");
 
@@ -34,14 +34,16 @@ public class AdventurerParser {
     public List<Adventurer> parseAdventurerFile(final String adventurerFilePath) throws BusinessException {
 
         final List<String> adventurerLines;
-        final Set<Position> positions = new HashSet<>();
 
         try {
             adventurerLines = Files.readAllLines(Paths.get(adventurerFilePath));
         } catch (final IOException e) {
             throw new TechnicalException("FICHIER_ILLISIBLE", String.format("Impossible de lire le fichier des aventuriers : %s", adventurerFilePath), e);
         }
+
         final List<Adventurer> adventurers = new ArrayList<>();
+        final Set<Position> positions = new HashSet<>();
+        final Set<String> names = new HashSet<>();
 
         int index = 0;
 
@@ -50,7 +52,8 @@ public class AdventurerParser {
 
             // Check the line format
             if (!adventurerLinePattern.matcher(line).matches()) {
-                throw new BusinessException(INCORRECT_FILE, String.format("La ligne du fichier aventurier n°%s est incorrecte, ligne = %s", index, line));
+                throw new BusinessException(INCORRECT_FILE,
+                        String.format("La ligne du fichier aventurier n°%s est incorrecte, ligne = %s, fichier : %s", index, line, adventurerFilePath));
             }
 
             // Create adventurer
@@ -65,12 +68,19 @@ public class AdventurerParser {
 
             adventurers.add(new Adventurer(name, positionInitial, initialOrientation, actions));
             positions.add(positionInitial);
+            names.add(name);
         }
 
         // If there is not the same number of positions than adventurers
         if (positions.size() != adventurers.size()) {
             // Then error
-            throw new BusinessException("INVALIDE", "Plusieurs aventurier sur la même case initial");
+            throw new BusinessException(INCORRECT_FILE, String.format("Plusieurs aventuriers sur la même case initial, fichier : %s", adventurerFilePath));
+        }
+
+        // If there is not the same number of names than adventurers
+        if (names.size() != adventurers.size()) {
+            // Then error
+            throw new BusinessException(INCORRECT_FILE, String.format("Plusieurs aventuriers avec le même nom, fichier : %s", adventurerFilePath));
         }
 
         return adventurers;
