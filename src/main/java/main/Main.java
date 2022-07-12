@@ -6,7 +6,10 @@ import entity.Mountain;
 import entity.Position;
 import entity.Treasure;
 import entity.enums.Orientation;
+import exception.BusinessException;
 import exception.TechnicalException;
+import parser.AdventurerParser;
+import parser.MapParser;
 import services.ActionService;
 import services.GameService;
 
@@ -19,14 +22,29 @@ import java.util.Scanner;
 public class Main {
 
     /**
+     * The Map parser.
+     */
+    private static final MapParser mapParser = new MapParser();
+
+    /**
+     * The Adventurer parser.
+     */
+    private static final AdventurerParser adventurerParser = new AdventurerParser();
+
+    /**
      * The Action service.
      */
     private static final ActionService actionService = new ActionService();
 
     /**
+     * The Keyboard.
+     */
+    private static final Scanner keyboard = new Scanner(System.in);
+
+    /**
      * The Game service.
      */
-    private static final GameService gameService = new GameService(actionService);
+    private static final GameService gameService = new GameService(mapParser, adventurerParser, actionService, keyboard);
 
     /**
      * Main.
@@ -42,13 +60,12 @@ public class Main {
             System.out.println("2 = chargé carte et aventurier");
             System.out.println("E (Exit)");
 
-            final Scanner keyboard = new Scanner(System.in);
             final String choice = keyboard.nextLine();
 
             if ("1".equals(choice)) {
                 demo();
             } else if ("2".equals(choice)) {
-                gameService.launchGame();
+                playWithFile();
             } else if ("E".equals(choice)) {
                 return;
             } else {
@@ -90,6 +107,20 @@ public class Main {
             }
 
             actionService.executeAction(action, adventurer, map, true);
+        }
+    }
+
+    /**
+     * Play with file.
+     */
+    private static void playWithFile() {
+        final String out;
+        try {
+            out = gameService.launchGame();
+            System.out.printf("Le résultat est disponible ici : %s%n", out);
+        } catch (final BusinessException e) {
+            System.out.printf("%n%s : %s%n", e.getCodeError(), e.getMessageError());
+            e.printStackTrace();
         }
     }
 }
