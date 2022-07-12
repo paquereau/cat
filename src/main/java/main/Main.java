@@ -62,14 +62,12 @@ public class Main {
 
             final String choice = keyboard.nextLine();
 
-            if ("1".equals(choice)) {
-                demo();
-            } else if ("2".equals(choice)) {
-                playWithFile();
-            } else if ("E".equals(choice)) {
-                return;
-            } else {
-                System.out.println("\nSaisie incorrect\n");
+            if (!"E".equals(choice)) {
+                switch (choice) {
+                    case "1" -> demo();
+                    case "2" -> playWithFile();
+                    default -> System.err.println("\nSaisie incorrect\n");
+                }
             }
         } catch (final TechnicalException e) {
             System.out.printf("%n%s : %s%n", e.getCodeError(), e.getMessageError());
