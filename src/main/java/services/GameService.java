@@ -26,86 +26,111 @@ public class GameService {
     /**
      * The Map parser.
      */
-    private MapParser mapParser;
-
-    /**
-     * The Action service.
-     */
-    private ActionService actionService;
+    private final MapParser mapParser;
 
     /**
      * The Adventurer parser.
      */
-    private AdventurerParser adventurerParser;
+    private final AdventurerParser adventurerParser;
+
+    /**
+     * The Action service.
+     */
+    private final ActionService actionService;
+
+    /**
+     * The Keyboard.
+     */
+    private final Scanner keyboard;
 
     /**
      * Instantiates a new Game service.
      *
-     * @param actionService the action service
+     * @param mapParser        the map parser
+     * @param adventurerParser the adventurer parser
+     * @param actionService    the action service
+     * @param keyboard         the keyboard
      */
-    public GameService(final ActionService actionService) {
+    public GameService(final MapParser mapParser, final AdventurerParser adventurerParser, final ActionService actionService, final Scanner keyboard) {
+        this.mapParser = mapParser;
+        this.adventurerParser = adventurerParser;
         this.actionService = actionService;
-        this.mapParser = new MapParser();
-        this.adventurerParser = new AdventurerParser();
+        this.keyboard = keyboard;
     }
 
     /**
      * Launch game.
      */
-    public void launchGame() {
+    public String launchGame() throws BusinessException {
 
-        try {
-            final Scanner keyboard = new Scanner(System.in);
+        final Map map = createMap();
+        final List<Adventurer> adventurers = createAdventurer();
 
-            // Read map file
-            System.out.println("Chemin accès absolu au fichier de la carte");
+        final ExecutorService executorService = Executors.newCachedThreadPool();
 
-            final String mapPath = keyboard.nextLine();
-            final Map map = mapParser.parseMapFile(mapPath);
-
-            // Read adventurer file
-            System.out.println("Chemin accès absolu au fichier des aventuriers");
-
-            final String adventurerPath = keyboard.nextLine();
-            final List<Adventurer> adventurers = adventurerParser.parseAdventurerFile(adventurerPath);
-
-            final ExecutorService executorService = Executors.newCachedThreadPool();
-
-            // Init map position with check
-            for (final Adventurer adventurer : adventurers) {
-                final Position position = adventurer.getPosition();
-                if (position.getColumn() <= 0 || position.getColumn() > map.getColumnNumber()
-                        || position.getLine() <= 0 || position.getLine() > map.getLineNumber()) {
-                    throw new BusinessException("INITIAL_POSTION_INVALIDE", String.format("La position initial de l'aventurier %s est invalide", adventurer.getName()));
-                }
-                map.getPositions().put(adventurer.getName(), adventurer.getPosition());
+        // Init map position with check
+        for (final Adventurer adventurer : adventurers) {
+            final Position position = adventurer.getPosition();
+            if (position.getColumn() <= 0 || position.getColumn() > map.getColumnNumber()
+                    || position.getLine() <= 0 || position.getLine() > map.getLineNumber()) {
+                throw new BusinessException("INITIAL_POSTION_INVALIDE", String.format("La position initial de l'aventurier %s est invalide", adventurer.getName()));
             }
-
-            // Launch thread
-            adventurers.forEach(adventurer -> executorService.execute(() -> {
-                System.out.printf("Début %s%n", adventurer.getName());
-                adventurer.getActions().forEach(action -> actionService.executeAction(action, adventurer, map, false));
-                System.out.printf("Fin %s%n", adventurer.getName());
-            }));
-
-            executorService.shutdown();
-
-            waitThreadToFinish(executorService);
-
-            writeResultToFile(adventurers);
-
-        } catch (final BusinessException e) {
-            System.out.printf("%n%s : %s%n", e.getCodeError(), e.getMessageError());
-            e.printStackTrace();
+            map.getPositions().put(adventurer.getName(), adventurer.getPosition());
         }
+
+        // Launch thread
+        adventurers.forEach(adventurer -> executorService.execute(() -> {
+            System.out.printf("Début %s%n", adventurer.getName());
+            adventurer.getActions().forEach(action -> actionService.executeAction(action, adventurer, map, false));
+            System.out.printf("Fin %s%n", adventurer.getName());
+        }));
+
+        executorService.shutdown();
+
+        waitThreadToFinish(executorService);
+
+        return writeResultToFile(adventurers);
+    }
+
+    /**
+     * Create map map.
+     *
+     * @return the map
+     * @throws BusinessException the business exception
+     */
+    private Map createMap() throws BusinessException {
+
+        // Read map file
+        System.out.println("Chemin accès absolu au fichier de la carte");
+
+        final String mapPath = keyboard.nextLine();
+
+        return mapParser.parseMapFile(mapPath);
+    }
+
+    /**
+     * Create adventurer list.
+     *
+     * @return the list
+     * @throws BusinessException the business exception
+     */
+    private List<Adventurer> createAdventurer() throws BusinessException {
+
+        // Read adventurer file
+        System.out.println("Chemin accès absolu au fichier des aventuriers");
+
+        final String adventurerPath = keyboard.nextLine();
+
+        return adventurerParser.parseAdventurerFile(adventurerPath);
     }
 
     /**
      * Write result to file
      *
      * @param adventurers the adventurers list
+     * @return the string
      */
-    private void writeResultToFile(final List<Adventurer> adventurers) {
+    private String writeResultToFile(final List<Adventurer> adventurers) {
 
         final String adventurerToString = adventurers.stream().map(Adventurer::toString).collect(Collectors.joining("\n"));
 
@@ -117,7 +142,7 @@ public class GameService {
             throw new TechnicalException("", String.format("Impossible d'écrire dans le fichier %s", out.getAbsoluteFile()), e);
         }
 
-        System.out.printf("Le résultat est disponible ici : %s%n", out.getAbsoluteFile());
+        return out.getAbsolutePath();
     }
 
     /**
