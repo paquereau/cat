@@ -14,6 +14,26 @@ import java.util.List;
  */
 public class ActionService {
 
+    private static ActionService actionService;
+
+    /**
+     * Instantiates a new Action service.
+     */
+    private ActionService() {
+    }
+
+    /**
+     * Gets instance.
+     *
+     * @return the instance
+     */
+    public static ActionService getInstance() {
+        if (actionService == null) {
+            actionService = new ActionService();
+        }
+        return actionService;
+    }
+
     /**
      * Execute action boolean.
      *
@@ -29,7 +49,7 @@ public class ActionService {
             case "A" -> moveAdventurer(adventurer, map, isDemo);
             case "D" -> moveRight(adventurer);
             case "G" -> moveLeft(adventurer);
-            default -> System.out.println("\nSaisie incorrect\n");
+            default -> System.out.println("\nIncorrect command\n");
         }
 
         waitSecond();
@@ -53,7 +73,7 @@ public class ActionService {
             adventurer.setPosition(nextPosition);
             adventurer.setTreasureNumber(computeTreasure(adventurer, treasures));
         } else if (isDemo) {
-            System.out.println("\nAction ignoré\n");
+            System.out.println("\nIgnored action\n");
         }
     }
 
